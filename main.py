@@ -9,7 +9,6 @@ def create_excel_file():
 
 def allocate_clients(clients, team_members):
     allocations = {member[0]: [] for member in team_members}
-    allocations_tracking = {member[0]: [] for member in team_members}  # Dictionary to track allocations
     client_index = 0
     week_date = datetime.now().strftime('%Y-%m-%d')  # Get current date as week date
 
@@ -21,14 +20,13 @@ def allocate_clients(clients, team_members):
             current_member = team_members[client_index % len(team_members)]
             if client not in current_member[1]:
                 allocations[current_member[0]].append(client)
-                allocations_tracking[current_member[0]].append(client)  # Update allocations tracking
                 ws.append([week_date, client, current_member[0]])
                 wb.save("allocations.xlsx")
                 client_index += 1
                 break
             client_index += 1
 
-    return allocations, allocations_tracking
+    return allocations
 
 def main():
     clients = [
@@ -50,10 +48,10 @@ def main():
     ]
 
     create_excel_file()
-    allocations, allocations_tracking = allocate_clients(clients, team_members)
-    for member, assigned_clients in allocations.items():
-        print(f"{member} has been assigned the following clients:")
-        print(", ".join(assigned_clients))
+    allocations = allocate_clients(clients, team_members)
+    # for member, assigned_clients in allocations.items():
+    #     print(f"{member} has been assigned the following clients:")
+    #     print(", ".join(assigned_clients))
 
 if __name__ == "__main__":
     main()
