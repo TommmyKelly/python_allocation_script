@@ -1,17 +1,34 @@
+import openpyxl
+from datetime import datetime
+
+def create_excel_file():
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.append(["Week Date", "Client", "Assigned To"])
+    wb.save("allocations.xlsx")
+
 def allocate_clients(clients, team_members):
     allocations = {member[0]: [] for member in team_members}
+    allocations_tracking = {member[0]: [] for member in team_members}  # Dictionary to track allocations
     client_index = 0
+    week_date = datetime.now().strftime('%Y-%m-%d')  # Get current date as week date
+
+    wb = openpyxl.load_workbook("allocations.xlsx")
+    ws = wb.active
 
     for client in clients:
         while True:
             current_member = team_members[client_index % len(team_members)]
             if client not in current_member[1]:
                 allocations[current_member[0]].append(client)
+                allocations_tracking[current_member[0]].append(client)  # Update allocations tracking
+                ws.append([week_date, client, current_member[0]])
+                wb.save("allocations.xlsx")
                 client_index += 1
                 break
             client_index += 1
 
-    return allocations
+    return allocations, allocations_tracking
 
 def main():
     clients = [
@@ -32,8 +49,8 @@ def main():
         ("Team Member 5", [])
     ]
 
-    allocations = allocate_clients(clients, team_members)
-    print(allocations)
+    create_excel_file()
+    allocations, allocations_tracking = allocate_clients(clients, team_members)
     for member, assigned_clients in allocations.items():
         print(f"{member} has been assigned the following clients:")
         print(", ".join(assigned_clients))
